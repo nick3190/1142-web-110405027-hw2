@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+  <rect width="400" height="500" fill="#d4d0c8"/>
+  <pattern id="d" width="4" height="4" patternUnits="userSpaceOnUse">
+    <rect width="2" height="2" fill="#111"/>
+    <rect x="2" y="2" width="2" height="2" fill="#111"/>
+  </pattern>
+  <rect width="400" height="500" fill="url(#d)" opacity="0.15"/>
+  <rect x="0" y="300" width="400" height="200" fill="#111" opacity="0.85"/>
+  <rect x="40" y="80" width="120" height="180" fill="#888"/>
+  <rect x="50" y="90" width="30" height="40" fill="#ccc"/>
+  <rect x="90" y="90" width="30" height="40" fill="#ccc"/>
+  <rect x="130" y="90" width="20" height="40" fill="#ccc"/>
+  <rect x="200" y="120" width="8" height="160" fill="#666"/>
+  <rect x="208" y="140" width="60" height="8" fill="#666"/>
+  <rect x="260" y="200" width="80" height="60" fill="#555"/>
+  <rect x="270" y="210" width="60" height="40" fill="#999"/>
+  <rect x="160" y="220" width="50" height="80" fill="#222"/>
+  <rect x="170" y="200" width="30" height="20" fill="#333"/>
+  <rect x="175" y="230" width="8" height="8" fill="#fff"/>
+  <rect x="195" y="230" width="8" height="8" fill="#fff"/>
+  <rect x="178" y="250" width="24" height="4" fill="#fff"/>
+  <rect x="175" y="258" width="30" height="6" fill="#fff"/>
+  <rect x="172" y="268" width="36" height="8" fill="#fff"/>
+  <rect x="280" y="320" width="60" height="8" fill="#aaa"/>
+  <rect x="290" y="340" width="40" height="50" fill="#444"/>
+  <text x="20" y="480" fill="#ccc" font-family="monospace" font-size="12">[ CAM_01 // STANDBY ]</text>
+</svg>

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { GLITCH_BY_QUESTION } from "@/data/glitch";
+import { GLITCH_BY_QUESTION, GLITCH_FLASH_IMAGES_LIST } from "@/data/glitch";
 import { useQuizStore } from "@/store/quiz-store";
 import { playAnswerSounds, unlockAndStartBgm } from "@/lib/audio";
+import { preloadImages } from "@/lib/preload-images";
 import { BootGate } from "@/components/BootGate";
 import { GlitchOverlay } from "@/components/GlitchOverlay";
 import { IntroGlitchOverlay } from "@/components/IntroGlitchOverlay";
@@ -24,6 +25,10 @@ export function QuizApp() {
   const glitchVariant = useQuizStore((state) => state.glitchVariant);
   const answers = useQuizStore((state) => state.answers);
   const prevAnswersLenRef = useRef(0);
+
+  useEffect(() => {
+    preloadImages(["/pic/intro.webp", ...GLITCH_FLASH_IMAGES_LIST]);
+  }, []);
 
   const handleGateStart = () => {
     unlockAndStartBgm();
@@ -67,12 +72,12 @@ export function QuizApp() {
       <IntroGlitchOverlay active={bootPhase === "intro"} />
 
       {bootPhase === "active" && (
-        <main className="intro-pure-glitch-reveal relative mx-auto flex h-dvh max-h-dvh w-full max-w-md flex-col overflow-hidden bg-background px-2 py-2 sm:max-w-lg sm:px-3 md:max-w-xl">
+        <main className="intro-pure-glitch-reveal relative mx-auto flex h-dvh max-h-dvh w-full min-w-0 max-w-md flex-col overflow-hidden bg-background px-2 py-1.5 sm:max-w-lg sm:px-3 sm:py-2 md:max-w-xl">
           <header className="mb-1 shrink-0 border-b border-foreground/20 pb-1 text-[11px] tracking-widest text-foreground/60 uppercase sm:text-xs">
             SYS://ENTITY_RECOGNITION_v3.2
           </header>
 
-          <div className="relative flex min-h-0 flex-1 flex-col">
+          <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             {stage === "start" && <StartScreen />}
             {stage === "quiz" && <QuestionScreen />}
             {stage === "preparing" && <PreparingScreen />}

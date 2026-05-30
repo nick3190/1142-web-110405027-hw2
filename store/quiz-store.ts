@@ -1,7 +1,11 @@
 "use client";
 
 import { create } from "zustand";
-import { GLITCH_BY_QUESTION, type GlitchVariant } from "@/data/glitch";
+import {
+  GLITCH_BY_QUESTION,
+  GLITCH_FLASH_IMAGES,
+  type GlitchVariant,
+} from "@/data/glitch";
 import {
   calculateResult,
   questions,
@@ -16,6 +20,7 @@ interface QuizState {
   resultId: ResultId | null;
   isGlitching: boolean;
   glitchVariant: GlitchVariant;
+  glitchFlashImage: string | null;
   startQuiz: () => void;
   answerQuestion: (optionId: string) => void;
   expelForTimeout: () => void;
@@ -31,6 +36,7 @@ const initialState = {
   resultId: null as ResultId | null,
   isGlitching: false,
   glitchVariant: "none" as GlitchVariant,
+  glitchFlashImage: null as string | null,
 };
 
 export const useQuizStore = create<QuizState>((set, get) => ({
@@ -44,6 +50,7 @@ export const useQuizStore = create<QuizState>((set, get) => ({
       resultId: null,
       isGlitching: false,
       glitchVariant: "none",
+      glitchFlashImage: null,
     }),
 
   answerQuestion: (optionId) => {
@@ -55,21 +62,22 @@ export const useQuizStore = create<QuizState>((set, get) => ({
       duration: 450,
     };
     const nextAnswers = [...answers, optionId];
+    const flashImage = GLITCH_FLASH_IMAGES[currentQuestion] ?? null;
 
     set({
       answers: nextAnswers,
       isGlitching: glitch.variant !== "none",
       glitchVariant: glitch.variant,
+      glitchFlashImage: flashImage,
     });
 
     window.setTimeout(() => {
-      const state = get();
-
       if (currentQuestion >= questions.length - 1) {
         set({
           stage: "preparing",
           isGlitching: false,
           glitchVariant: "none",
+          glitchFlashImage: null,
           resultId: calculateResult(nextAnswers),
         });
         return;
@@ -79,6 +87,7 @@ export const useQuizStore = create<QuizState>((set, get) => ({
         currentQuestion: currentQuestion + 1,
         isGlitching: false,
         glitchVariant: "none",
+        glitchFlashImage: null,
       });
     }, glitch.duration);
   },
@@ -90,10 +99,12 @@ export const useQuizStore = create<QuizState>((set, get) => ({
       stage: "expelled",
       isGlitching: false,
       glitchVariant: "none",
+      glitchFlashImage: null,
     });
   },
 
-  finishGlitch: () => set({ isGlitching: false, glitchVariant: "none" }),
+  finishGlitch: () =>
+    set({ isGlitching: false, glitchVariant: "none", glitchFlashImage: null }),
 
   finishPreparing: () => set({ stage: "result" }),
 

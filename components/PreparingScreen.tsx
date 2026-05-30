@@ -26,7 +26,7 @@ export function PreparingScreen() {
   }, [finishPreparing]);
 
   return (
-    <section className="flex h-full min-h-0 flex-col items-center justify-center gap-4 px-1">
+    <section className="quiz-layout-shell flex h-full min-h-0 flex-col items-center justify-center gap-3 overflow-hidden px-1 sm:gap-4">
       <div className="w-full space-y-2">
         <p className="pulse-red text-center text-sm tracking-widest sm:text-base">
           正在分析您的回應

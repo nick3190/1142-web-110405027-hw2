@@ -1,5 +1,5 @@
 const SOUND_PATHS = {
-  bgm: "/sound_assets/bgm.mp3",
+  bgm: "/audio/bgm.mp3",
   error: "/sound_assets/sfx_error.m4a",
   fatalError: "/sound_assets/sfx_fatal_error.m4a",
   loading: "/sound_assets/sfx_loading.m4a",
@@ -22,7 +22,6 @@ const VOLUME = {
 
 let bgmAudio: HTMLAudioElement | null = null;
 let loadingAudio: HTMLAudioElement | null = null;
-let bgmUnlocked = false;
 
 function playOneShot(key: SfxKey, volume: number = VOLUME.glitch) {
   if (typeof window === "undefined") return;
@@ -48,7 +47,6 @@ export function unlockAndStartBgm() {
   const bgm = ensureBgm();
   if (!bgm) return;
 
-  bgmUnlocked = true;
   void bgm.play().catch(() => {});
 }
 

@@ -45,20 +45,15 @@ export function ResultScreen() {
           setSystemFailed(true);
           return 0;
         }
+
+        setRedFlash(true);
+        window.setTimeout(() => setRedFlash(false), 220);
         return prev - 1;
       });
     }, 1000);
 
     return () => window.clearInterval(timer);
   }, [downloaded]);
-
-  useEffect(() => {
-    if (downloaded || systemFailed || countdown <= 0) return;
-
-    setRedFlash(true);
-    const timer = window.setTimeout(() => setRedFlash(false), 220);
-    return () => window.clearTimeout(timer);
-  }, [countdown, downloaded, systemFailed]);
 
   useEffect(() => {
     if (countdown !== 7 || countDownPlayedRef.current || downloaded) return;
@@ -116,21 +111,22 @@ export function ResultScreen() {
         urgent={countdown <= 3}
       />
 
-      <section className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-1.5 sm:gap-2">
+      <section className="quiz-layout-shell grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-1 overflow-hidden sm:gap-1.5">
         <div className="shrink-0 text-center text-[11px] tracking-[0.25em] text-foreground/50 uppercase sm:text-xs">
           辨識結果
         </div>
 
         <article
           ref={cardRef}
-          className="flex min-h-0 flex-col gap-1 sm:gap-1.5"
+          className="flex min-h-0 min-w-0 flex-col gap-1 overflow-hidden sm:gap-1.5"
         >
           <QuizImageFrame
             src={result.image}
             aspect={RESULT_ASPECT[resultId]}
+            layout="result"
           />
 
-          <div className="dither-bg pixel-border min-h-0 flex-1 space-y-1.5 overflow-hidden p-2.5 text-ink sm:space-y-2 sm:p-3">
+          <div className="quiz-scroll-panel dither-bg pixel-border min-h-0 flex-1 space-y-1 p-2 text-ink sm:space-y-1.5 sm:p-2.5">
             <div>
               <h2 className="text-base tracking-wide sm:text-lg">
                 {result.title}
@@ -142,7 +138,7 @@ export function ResultScreen() {
 
             <div className="h-px w-full bg-ink/30" />
 
-            <div className="space-y-0.5 text-xs leading-snug sm:text-sm">
+            <div className="space-y-0.5 break-words text-[11px] leading-snug sm:text-xs">
               {result.body.map((line) => (
                 <p key={line}>{line}</p>
               ))}
