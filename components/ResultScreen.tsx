@@ -65,9 +65,19 @@ export function ResultScreen() {
           return 0;
         }
 
+        const next = prev - 1;
+
+        if (
+          next === RESULT_COUNTDOWN_SOUND_AT &&
+          !countDownPlayedRef.current
+        ) {
+          countDownPlayedRef.current = true;
+          playCountDown();
+        }
+
         setRedFlash(true);
         window.setTimeout(() => setRedFlash(false), 220);
-        return prev - 1;
+        return next;
       });
     }, 1000);
 
@@ -75,21 +85,9 @@ export function ResultScreen() {
   }, [downloaded]);
 
   useEffect(() => {
-    if (
-      countdown !== RESULT_COUNTDOWN_SOUND_AT ||
-      countDownPlayedRef.current ||
-      downloaded
-    ) {
-      return;
-    }
-
-    countDownPlayedRef.current = true;
-    playCountDown();
-  }, [countdown, downloaded]);
-
-  useEffect(() => {
     if (!systemFailed) return;
 
+    stopResultBgm();
     playFatalError();
     playCrash();
 
