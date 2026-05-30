@@ -24,7 +24,7 @@ let bgmAudio: HTMLAudioElement | null = null;
 let loadingAudio: HTMLAudioElement | null = null;
 let bgmUnlocked = false;
 
-function playOneShot(key: SfxKey, volume = VOLUME.glitch) {
+function playOneShot(key: SfxKey, volume: number = VOLUME.glitch) {
   if (typeof window === "undefined") return;
 
   const audio = new Audio(SOUND_PATHS[key]);
