@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <rect width="400" height="300" fill="#0a0a0a"/>
+  <rect x="100" y="40" width="200" height="220" rx="20" fill="#222" stroke="#444" stroke-width="4"/>
+  <rect x="110" y="50" width="180" height="200" fill="#111"/>
+  <rect x="130" y="70" width="140" height="120" fill="#555"/>
+  <rect x="150" y="90" width="10" height="10" fill="#111"/>
+  <rect x="190" y="90" width="10" height="10" fill="#111"/>
+  <rect x="145" y="130" width="110" height="40" fill="#333"/>
+  <rect x="155" y="145" width="90" height="10" fill="#666"/>
+  <rect x="160" y="250" width="80" height="4" fill="#444"/>
+  <text x="120" y="30" fill="#cc0000" font-family="monospace" font-size="14">”Œ</text>
+  <pattern id="n" width="4" height="4" patternUnits="userSpaceOnUse">
+    <rect width="2" height="2" fill="#fff" opacity="0.1"/>
+  </pattern>
+  <rect x="110" y="50" width="180" height="200" fill="url(#n)"/>
+</svg>
