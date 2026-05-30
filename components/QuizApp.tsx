@@ -1,30 +1,88 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import { GLITCH_BY_QUESTION } from "@/data/glitch";
 import { useQuizStore } from "@/store/quiz-store";
+import { playAnswerSounds, unlockAndStartBgm } from "@/lib/audio";
+import { BootGate } from "@/components/BootGate";
 import { GlitchOverlay } from "@/components/GlitchOverlay";
+import { IntroGlitchOverlay } from "@/components/IntroGlitchOverlay";
 import { StartScreen } from "@/components/StartScreen";
 import { QuestionScreen } from "@/components/QuestionScreen";
 import { PreparingScreen } from "@/components/PreparingScreen";
 import { ResultScreen } from "@/components/ResultScreen";
+import { ExpulsionScreen } from "@/components/ExpulsionScreen";
+
+type BootPhase = "gate" | "intro" | "active";
+
+const INTRO_DURATION_MS = 2800;
 
 export function QuizApp() {
+  const [bootPhase, setBootPhase] = useState<BootPhase>("gate");
   const stage = useQuizStore((state) => state.stage);
   const isGlitching = useQuizStore((state) => state.isGlitching);
+  const glitchVariant = useQuizStore((state) => state.glitchVariant);
+  const answers = useQuizStore((state) => state.answers);
+  const prevAnswersLenRef = useRef(0);
+
+  const handleGateStart = () => {
+    unlockAndStartBgm();
+    setBootPhase("intro");
+  };
+
+  useEffect(() => {
+    if (bootPhase !== "intro") return;
+
+    const timer = window.setTimeout(() => {
+      setBootPhase("active");
+    }, INTRO_DURATION_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [bootPhase]);
+
+  useEffect(() => {
+    if (answers.length <= prevAnswersLenRef.current) return;
+
+    const questionIndex = answers.length - 1;
+    const glitch = GLITCH_BY_QUESTION[questionIndex] ?? {
+      variant: "slight",
+      duration: 450,
+    };
+    playAnswerSounds(questionIndex, glitch.variant);
+    prevAnswersLenRef.current = answers.length;
+  }, [answers.length]);
+
+  useEffect(() => {
+    if (stage === "start") {
+      prevAnswersLenRef.current = 0;
+    }
+  }, [stage]);
+
+  if (bootPhase === "gate") {
+    return <BootGate onStart={handleGateStart} />;
+  }
 
   return (
-    <main className="relative mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background px-3 py-4 sm:max-w-lg sm:px-4 md:max-w-xl">
-      <header className="mb-3 shrink-0 border-b border-foreground/20 pb-2 text-[10px] tracking-widest text-foreground/60 uppercase">
-        SYS://ENTITY_RECOGNITION_v3.2
-      </header>
+    <>
+      <IntroGlitchOverlay active={bootPhase === "intro"} />
 
-      <div className="relative flex flex-1 flex-col">
-        {stage === "start" && <StartScreen />}
-        {stage === "quiz" && <QuestionScreen />}
-        {stage === "preparing" && <PreparingScreen />}
-        {stage === "result" && <ResultScreen />}
-      </div>
+      {bootPhase === "active" && (
+        <main className="intro-pure-glitch-reveal relative mx-auto flex h-dvh max-h-dvh w-full max-w-md flex-col overflow-hidden bg-background px-2 py-2 sm:max-w-lg sm:px-3 md:max-w-xl">
+          <header className="mb-1 shrink-0 border-b border-foreground/20 pb-1 text-[11px] tracking-widest text-foreground/60 uppercase sm:text-xs">
+            SYS://ENTITY_RECOGNITION_v3.2
+          </header>
 
-      {isGlitching && <GlitchOverlay />}
-    </main>
+          <div className="relative flex min-h-0 flex-1 flex-col">
+            {stage === "start" && <StartScreen />}
+            {stage === "quiz" && <QuestionScreen />}
+            {stage === "preparing" && <PreparingScreen />}
+            {stage === "result" && <ResultScreen />}
+            {stage === "expelled" && <ExpulsionScreen />}
+          </div>
+
+          {isGlitching && <GlitchOverlay variant={glitchVariant} />}
+        </main>
+      )}
+    </>
   );
 }

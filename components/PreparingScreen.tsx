@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useQuizStore } from "@/store/quiz-store";
+import { playLoading, stopLoading } from "@/lib/audio";
 
 const messages = [
   "正在比對行為模式…",
@@ -15,22 +16,27 @@ export function PreparingScreen() {
   const finishPreparing = useQuizStore((state) => state.finishPreparing);
 
   useEffect(() => {
+    playLoading();
+
     const timer = window.setTimeout(finishPreparing, 3000);
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(timer);
+      stopLoading();
+    };
   }, [finishPreparing]);
 
   return (
-    <section className="fade-in flex flex-1 flex-col items-center justify-center gap-6 px-2">
+    <section className="flex h-full min-h-0 flex-col items-center justify-center gap-4 px-1">
       <div className="w-full space-y-2">
-        <p className="pulse-red text-center text-sm tracking-widest">
+        <p className="pulse-red text-center text-sm tracking-widest sm:text-base">
           正在分析您的回應
         </p>
-        <div className="pixel-border h-4 w-full overflow-hidden bg-black">
+        <div className="pixel-border h-3.5 w-full overflow-hidden bg-black sm:h-4">
           <div className="preparing-bar h-full bg-accent-red" />
         </div>
       </div>
 
-      <div className="dither-bg pixel-border w-full space-y-2 p-4 text-sm text-ink">
+      <div className="dither-bg pixel-border w-full space-y-1.5 p-3 text-sm text-ink sm:space-y-2 sm:p-4 sm:text-base">
         {messages.map((message, index) => (
           <p
             key={message}
@@ -40,7 +46,7 @@ export function PreparingScreen() {
             <span className="text-accent-red">&gt;</span> {message}
           </p>
         ))}
-        <p className="blink-cursor text-xs text-ink/60">請勿關閉視窗</p>
+        <p className="blink-cursor text-xs text-ink/60 sm:text-sm">請勿關閉視窗</p>
       </div>
     </section>
   );

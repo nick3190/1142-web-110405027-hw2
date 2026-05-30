@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { GLITCH_BY_QUESTION, type GlitchVariant } from "@/data/glitch";
 import {
   calculateResult,
   questions,
@@ -14,8 +15,10 @@ interface QuizState {
   answers: string[];
   resultId: ResultId | null;
   isGlitching: boolean;
+  glitchVariant: GlitchVariant;
   startQuiz: () => void;
   answerQuestion: (optionId: string) => void;
+  expelForTimeout: () => void;
   finishGlitch: () => void;
   finishPreparing: () => void;
   resetQuiz: () => void;
@@ -27,6 +30,7 @@ const initialState = {
   answers: [] as string[],
   resultId: null as ResultId | null,
   isGlitching: false,
+  glitchVariant: "none" as GlitchVariant,
 };
 
 export const useQuizStore = create<QuizState>((set, get) => ({
@@ -39,26 +43,33 @@ export const useQuizStore = create<QuizState>((set, get) => ({
       answers: [],
       resultId: null,
       isGlitching: false,
+      glitchVariant: "none",
     }),
 
   answerQuestion: (optionId) => {
-    const { currentQuestion, answers, isGlitching } = get();
-    if (isGlitching) return;
+    const { currentQuestion, answers, isGlitching, stage } = get();
+    if (isGlitching || stage !== "quiz") return;
 
+    const glitch = GLITCH_BY_QUESTION[currentQuestion] ?? {
+      variant: "slight" as GlitchVariant,
+      duration: 450,
+    };
     const nextAnswers = [...answers, optionId];
+
     set({
       answers: nextAnswers,
-      isGlitching: true,
+      isGlitching: glitch.variant !== "none",
+      glitchVariant: glitch.variant,
     });
 
     window.setTimeout(() => {
       const state = get();
-      if (!state.isGlitching) return;
 
       if (currentQuestion >= questions.length - 1) {
         set({
           stage: "preparing",
           isGlitching: false,
+          glitchVariant: "none",
           resultId: calculateResult(nextAnswers),
         });
         return;
@@ -67,11 +78,22 @@ export const useQuizStore = create<QuizState>((set, get) => ({
       set({
         currentQuestion: currentQuestion + 1,
         isGlitching: false,
+        glitchVariant: "none",
       });
-    }, 700);
+    }, glitch.duration);
   },
 
-  finishGlitch: () => set({ isGlitching: false }),
+  expelForTimeout: () => {
+    if (get().stage !== "quiz") return;
+
+    set({
+      stage: "expelled",
+      isGlitching: false,
+      glitchVariant: "none",
+    });
+  },
+
+  finishGlitch: () => set({ isGlitching: false, glitchVariant: "none" }),
 
   finishPreparing: () => set({ stage: "result" }),
 

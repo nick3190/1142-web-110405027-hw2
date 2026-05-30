@@ -5,7 +5,7 @@ export type ResultId =
   | "mimic"
   | "anomaly";
 
-export type QuizStage = "start" | "quiz" | "preparing" | "result";
+export type QuizStage = "start" | "quiz" | "preparing" | "result" | "expelled";
 
 export interface QuizOption {
   id: string;
@@ -33,11 +33,15 @@ export const QUIZ_TITLE = "實體辨識系統 v3.2";
 export const QUIZ_SUBTITLE =
   "本系統將確認您是否為原始人類個體。請誠實回答以下問題。";
 
+export function getQuestionTimeLimit(questionIndex: number): number {
+  return Math.max(60 - questionIndex * 10, 10);
+}
+
 export const questions: QuizQuestion[] = [
   {
     id: 1,
     text: "深夜回家時，你發現家中的燈是亮的。但你記得出門前已經關燈。你會：",
-    image: "/horror/scene-light.svg",
+    image: "/pic/Q1.webp",
     options: [
       { id: "A", label: "進屋查看", scores: { observer: 2, replacement: 1 } },
       { id: "B", label: "打電話給家人", scores: { mimic: 2 } },
@@ -53,7 +57,7 @@ export const questions: QuizQuestion[] = [
   {
     id: 2,
     text: "鏡中的你比現實慢了半秒鐘。你第一個想法是：",
-    image: "/horror/scene-mirror.svg",
+    image: "/pic/Q2.webp",
     options: [
       { id: "A", label: "自己太累了", scores: { replacement: 2, mimic: 1 } },
       { id: "B", label: "鏡子有問題", scores: { observer: 2 } },
@@ -69,7 +73,7 @@ export const questions: QuizQuestion[] = [
   {
     id: 3,
     text: "手機收到一張照片。照片中的你正在睡覺。拍攝時間顯示：「五分鐘後」。你會：",
-    image: "/horror/scene-phone.svg",
+    image: "/pic/Q3.webp",
     options: [
       { id: "A", label: "刪除照片", scores: { mimic: 2, replacement: 1 } },
       { id: "B", label: "報警", scores: { observer: 2 } },
@@ -81,7 +85,7 @@ export const questions: QuizQuestion[] = [
   {
     id: 4,
     text: "你在空無一人的走廊上聽見有人叫你的名字。聲音來自前方。但前方沒有任何人。你會：",
-    image: "/horror/scene-hallway.svg",
+    image: "/pic/Q4.webp",
     options: [
       { id: "A", label: "回應", scores: { replacement: 3, mimic: 1 } },
       { id: "B", label: "無視", scores: { mimic: 3, observer: 1 } },
@@ -93,7 +97,7 @@ export const questions: QuizQuestion[] = [
   {
     id: 5,
     text: "你發現另一個自己坐在房間角落。祂沒有動。只是看著你。你覺得祂是：",
-    image: "/horror/scene-double.svg",
+    image: "/pic/Q5.webp",
     options: [
       { id: "A", label: "幻覺", scores: { replacement: 2, mimic: 1 } },
       { id: "B", label: "威脅", scores: { observer: 2, lost: 1 } },
@@ -116,7 +120,7 @@ export const results: Record<ResultId, QuizResult> = {
       "無法證明您是原來的那個人。",
     ],
     traits: ["容易接受異常", "自我認知不穩定"],
-    image: "/horror/result-replacement.svg",
+    image: "/pic/result_1.webp",
   },
   observer: {
     id: "observer",
@@ -124,7 +128,7 @@ export const results: Record<ResultId, QuizResult> = {
     titleEn: "Observer",
     body: ["您不是目標。", "但您看見了太多東西。"],
     traits: ["冷靜", "高警覺", "會注意到別人忽略的細節"],
-    image: "/horror/result-observer.svg",
+    image: "/pic/result_2.webp",
   },
   lost: {
     id: "lost",
@@ -138,7 +142,7 @@ export const results: Record<ResultId, QuizResult> = {
       "之後再無訊號。",
     ],
     traits: ["方向感依賴直覺", "容易陷入記憶迷宮"],
-    image: "/horror/result-lost.svg",
+    image: "/pic/result_3.webp",
   },
   mimic: {
     id: "mimic",
@@ -150,7 +154,7 @@ export const results: Record<ResultId, QuizResult> = {
       "您已忘記自己的樣子。",
     ],
     traits: ["適應力強", "社交面具多"],
-    image: "/horror/result-mimic.svg",
+    image: "/pic/result_4.webp",
   },
   anomaly: {
     id: "anomaly",
@@ -163,7 +167,7 @@ export const results: Record<ResultId, QuizResult> = {
       "您是異常產生的原因。",
     ],
     traits: ["高獨立性", "不容易被分類", "所有結果都不適用於你"],
-    image: "/horror/result-anomaly.svg",
+    image: "/pic/result_5.webp",
   },
 };
 
