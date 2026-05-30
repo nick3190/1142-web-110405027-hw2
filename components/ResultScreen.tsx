@@ -9,7 +9,15 @@ import {
   playCrash,
   playFatalError,
   playRadioGlitch,
+  playResultBgm,
+  stopLoading,
+  stopResultBgm,
 } from "@/lib/audio";
+import {
+  RESULT_COUNTDOWN_SOUND_AT,
+  RESULT_COUNTDOWN_URGENT_AT,
+  RESULT_DOWNLOAD_COUNTDOWN_SEC,
+} from "@/lib/result-config";
 import { GlitchButton } from "@/components/GlitchButton";
 import { CountdownRedFlash } from "@/components/CountdownRedFlash";
 import { QuizImageFrame } from "@/components/QuizImageFrame";
@@ -28,12 +36,23 @@ export function ResultScreen() {
   const resetQuiz = useQuizStore((state) => state.resetQuiz);
   const cardRef = useRef<HTMLElement>(null);
 
-  const [countdown, setCountdown] = useState(10);
+  const [countdown, setCountdown] = useState(RESULT_DOWNLOAD_COUNTDOWN_SEC);
   const [downloaded, setDownloaded] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [systemFailed, setSystemFailed] = useState(false);
   const [redFlash, setRedFlash] = useState(false);
   const countDownPlayedRef = useRef(false);
+
+  useEffect(() => {
+    if (!resultId) return;
+
+    stopLoading();
+    playResultBgm(resultId);
+
+    return () => {
+      stopResultBgm();
+    };
+  }, [resultId]);
 
   useEffect(() => {
     if (downloaded) return;
@@ -56,7 +75,14 @@ export function ResultScreen() {
   }, [downloaded]);
 
   useEffect(() => {
-    if (countdown !== 7 || countDownPlayedRef.current || downloaded) return;
+    if (
+      countdown !== RESULT_COUNTDOWN_SOUND_AT ||
+      countDownPlayedRef.current ||
+      downloaded
+    ) {
+      return;
+    }
+
     countDownPlayedRef.current = true;
     playCountDown();
   }, [countdown, downloaded]);
@@ -98,6 +124,11 @@ export function ResultScreen() {
     }
   }, [isDownloading, resultId, systemFailed]);
 
+  const handleReset = useCallback(() => {
+    stopResultBgm();
+    resetQuiz();
+  }, [resetQuiz]);
+
   if (!resultId) return null;
 
   const result = results[resultId];
@@ -108,7 +139,7 @@ export function ResultScreen() {
       <CountdownRedFlash
         active={countdownActive}
         flash={redFlash}
-        urgent={countdown <= 3}
+        urgent={countdown <= RESULT_COUNTDOWN_URGENT_AT}
       />
 
       <section className="quiz-layout-shell grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-1 overflow-hidden sm:gap-1.5">
@@ -175,7 +206,7 @@ export function ResultScreen() {
                 : `↓ 下載 PNG (${countdown}s)`}
           </GlitchButton>
           <GlitchButton
-            onClick={resetQuiz}
+            onClick={handleReset}
             disabled={systemFailed}
             className="px-2.5 py-2 text-xs tracking-wider text-ink hover:bg-paper/80 disabled:opacity-40 sm:py-2.5 sm:text-sm"
           >

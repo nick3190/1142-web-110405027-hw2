@@ -7,6 +7,10 @@ import {
   type GlitchVariant,
 } from "@/data/glitch";
 import {
+  areQuestionImagesReady,
+  waitForQuestionImages,
+} from "@/lib/preload-images";
+import {
   calculateResult,
   questions,
   type QuizStage,
@@ -39,19 +43,61 @@ const initialState = {
   glitchFlashImage: null as string | null,
 };
 
-export const useQuizStore = create<QuizState>((set, get) => ({
-  ...initialState,
-
-  startQuiz: () =>
-    set({
-      stage: "quiz",
-      currentQuestion: 0,
-      answers: [],
-      resultId: null,
+async function advanceAfterGlitch(
+  currentQuestion: number,
+  nextAnswers: string[],
+) {
+  if (currentQuestion >= questions.length - 1) {
+    useQuizStore.setState({
+      stage: "preparing",
       isGlitching: false,
       glitchVariant: "none",
       glitchFlashImage: null,
-    }),
+      resultId: calculateResult(nextAnswers),
+    });
+    return;
+  }
+
+  const nextIndex = currentQuestion + 1;
+  await waitForQuestionImages(nextIndex);
+
+  const state = useQuizStore.getState();
+  if (state.stage !== "quiz" || state.answers.length !== nextAnswers.length) {
+    return;
+  }
+
+  if (!areQuestionImagesReady(nextIndex)) {
+    return;
+  }
+
+  useQuizStore.setState({
+    currentQuestion: nextIndex,
+    isGlitching: false,
+    glitchVariant: "none",
+    glitchFlashImage: null,
+  });
+}
+
+export const useQuizStore = create<QuizState>((set, get) => ({
+  ...initialState,
+
+  startQuiz: () => {
+    void (async () => {
+      await waitForQuestionImages(0);
+
+      if (!areQuestionImagesReady(0)) return;
+
+      set({
+        stage: "quiz",
+        currentQuestion: 0,
+        answers: [],
+        resultId: null,
+        isGlitching: false,
+        glitchVariant: "none",
+        glitchFlashImage: null,
+      });
+    })();
+  },
 
   answerQuestion: (optionId) => {
     const { currentQuestion, answers, isGlitching, stage } = get();
@@ -72,23 +118,7 @@ export const useQuizStore = create<QuizState>((set, get) => ({
     });
 
     window.setTimeout(() => {
-      if (currentQuestion >= questions.length - 1) {
-        set({
-          stage: "preparing",
-          isGlitching: false,
-          glitchVariant: "none",
-          glitchFlashImage: null,
-          resultId: calculateResult(nextAnswers),
-        });
-        return;
-      }
-
-      set({
-        currentQuestion: currentQuestion + 1,
-        isGlitching: false,
-        glitchVariant: "none",
-        glitchFlashImage: null,
-      });
+      void advanceAfterGlitch(currentQuestion, nextAnswers);
     }, glitch.duration);
   },
 

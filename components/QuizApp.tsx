@@ -1,10 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { GLITCH_BY_QUESTION, GLITCH_FLASH_IMAGES_LIST } from "@/data/glitch";
+import { GLITCH_BY_QUESTION } from "@/data/glitch";
 import { useQuizStore } from "@/store/quiz-store";
-import { playAnswerSounds, unlockAndStartBgm } from "@/lib/audio";
+import {
+  playAnswerSounds,
+  stopResultBgm,
+  unlockAndStartBgm,
+} from "@/lib/audio";
 import { preloadImages } from "@/lib/preload-images";
+import { ALL_PRELOAD_IMAGES } from "@/lib/quiz-images";
 import { BootGate } from "@/components/BootGate";
 import { GlitchOverlay } from "@/components/GlitchOverlay";
 import { IntroGlitchOverlay } from "@/components/IntroGlitchOverlay";
@@ -26,12 +31,9 @@ export function QuizApp() {
   const answers = useQuizStore((state) => state.answers);
   const prevAnswersLenRef = useRef(0);
 
-  useEffect(() => {
-    preloadImages(["/pic/intro.webp", ...GLITCH_FLASH_IMAGES_LIST]);
-  }, []);
-
   const handleGateStart = () => {
     unlockAndStartBgm();
+    void preloadImages(ALL_PRELOAD_IMAGES);
     setBootPhase("intro");
   };
 
@@ -60,6 +62,8 @@ export function QuizApp() {
   useEffect(() => {
     if (stage === "start") {
       prevAnswersLenRef.current = 0;
+      stopResultBgm();
+      unlockAndStartBgm();
     }
   }, [stage]);
 
